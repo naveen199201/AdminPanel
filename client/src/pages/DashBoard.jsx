@@ -4,7 +4,8 @@ import api from "../services/api";
 import AddAgentModal from "../pages/AddAgent";
 import UploadModal from "./UploadList";
 import EditAgent from "./EditAgent";
-
+import { useRef } from "react";
+import useOutsideClick from "../components/useOutsideClick";
 function Dashboard() {
   const navigate = useNavigate();
   const [role, setRole] = useState("");
@@ -12,8 +13,14 @@ function Dashboard() {
   const [lists, setLists] = useState([]);
   const [showAddAgentModal, setShowAddAgentModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [editingAgent, setEditingAgent] = useState(null);
+  const [editingAgent, setEditingAgent] = useState(false);
+    const agentRef = useRef(null);
+    const uploadRef = useRef(null);
+    const editRef = useRef(null);
 
+    useOutsideClick(agentRef, () => setShowAddAgentModal(false));
+    useOutsideClick(uploadRef, () => setShowUploadModal(false));
+    useOutsideClick(editRef, () => setEditingAgent(false));
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
     setRole(storedRole);
@@ -92,7 +99,7 @@ function Dashboard() {
             </div>
 
             <div className="bg-white shadow rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-h-[80vh]  ">
                 <table className="min-w-full text-sm text-left">
                   <thead className="bg-blue-200 text-gray-600 uppercase text-xs">
                     <tr>
@@ -136,7 +143,7 @@ function Dashboard() {
           </>
         ) : (
           <>
-            <div className="bg-white shadow rounded-lg overflow-hidden mt-8">
+            {lists && lists.length>0 ?(<div className="bg-white shadow rounded-lg overflow-hidden mt-8">
               <h2 className="text-xl font-semibold text-gray-700 bg-gray-100 px-6 py-4 border-b">
                 Your Assigned List
               </h2>
@@ -166,13 +173,18 @@ function Dashboard() {
                 </table>
               </div>
             </div>
+            ):(
+              <h2 className="text-xl  text-center font-semibold text-Black bg-gray-100 px-6 py-4 ">
+                No List Assigned
+              </h2>
+            )}
           </>
         )}
       </div>
 
       {showAddAgentModal && (
         <div className="fixed inset-0 bg-opacity-30 flex justify-center items-center z-50 backdrop-blur-sm">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md relative">
+          <div ref={agentRef} className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md relative">
             <button
               onClick={() => setShowAddAgentModal(false)}
               className="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl"
@@ -189,7 +201,7 @@ function Dashboard() {
 
       {showUploadModal && (
         <div className="fixed inset-0 bg-opacity-30 flex justify-center items-center z-50 backdrop-blur-sm">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md relative">
+          <div ref= { uploadRef} className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md relative">
             <button
               onClick={() => setShowUploadModal(false)}
               className="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl"
@@ -203,11 +215,21 @@ function Dashboard() {
 
       {/* Edit Agent Modal */}
       {editingAgent && (
-        <EditAgent
+        <div className="fixed inset-0 bg-opacity-30 flex justify-center items-center z-50 backdrop-blur-sm">
+          <div ref= {editRef} className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md relative">
+            <button
+              onClick={() => setShowUploadModal(false)}
+              className="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl"
+            >
+              &times;
+            </button>
+            <EditAgent
           agent={editingAgent}
           onClose={() => setEditingAgent(null)}
           onSuccess={fetchUsers}
         />
+          </div>
+        </div>
       )}
     </div>
   );

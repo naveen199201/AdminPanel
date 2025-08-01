@@ -26,7 +26,7 @@ function Login() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-80">
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Admin Login</h2>
+        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Login</h2>
         <div className="mb-4">
           <input
             type="email"
