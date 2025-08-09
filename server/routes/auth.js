@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import DistributedItem from '../models/DistributedItem.js';
 
 const router = express.Router();
 
@@ -59,5 +60,17 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
+router.get('/list',async (req,res) =>{
+  try{
+    const list= await DistributedItem.find();
+    res.json(list);
+  }
+    catch (error){
+      res.status(500).json({error:'Failed to fetch list.'});
+  }
+})
+
+
 
 export default router;

@@ -31,6 +31,13 @@ function Dashboard() {
       fetchList();
     }
   }, []);
+const handleView = (id) => {
+  // Store the id in localStorage
+  localStorage.setItem("agentId", id);
+
+  // Navigate to the route with the actual id
+  navigate(`/itemsList/${id}`);
+};
 
   const fetchList = async () => {
     const userId = localStorage.getItem("userId");
@@ -66,6 +73,10 @@ function Dashboard() {
     navigate("/");
   };
 
+  const handleTasks = () => {
+    navigate("/tasks");
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto">
@@ -85,6 +96,12 @@ function Dashboard() {
           <>
             <div className="flex gap-4 mb-6 justify-end">
               <button
+                onClick={() => handleTasks()}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+              >
+                Tasks List
+              </button>
+              <button
                 onClick={() => setShowAddAgentModal(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
               >
@@ -96,6 +113,7 @@ function Dashboard() {
               >
                 Upload List
               </button>
+              
             </div>
 
             <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -106,7 +124,9 @@ function Dashboard() {
                       <th className="px-6 py-3">Name</th>
                       <th className="px-6 py-3">Email</th>
                       <th className="px-6 py-3 text-center">Mobile</th>
+                      <th className="px-6 py-3 text-center">Count</th>
                       <th className="px-6 py-3 text-center">Actions</th>
+                      <th className="px-6 py-3 text-center">list</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -119,7 +139,10 @@ function Dashboard() {
                       >
                         <td className="px-6 py-3">{agent.name}</td>
                         <td className="px-6 py-3">{agent.email}</td>
+                        
+
                         <td className="px-6 py-3 text-center">{agent.mobile}</td>
+                        <td className="px-6 py-3 text-center">{agent.count}</td>
                         <td className="px-6 py-3 space-x-2 text-center">
                           <button
                             onClick={() => setEditingAgent(agent)}
@@ -132,6 +155,15 @@ function Dashboard() {
                             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                           >
                             Delete
+                          </button>
+                          
+                        </td>
+                        <td className="px-6 py-3 space-x-2 text-center">
+                        <button
+                            onClick={() => handleView(agent._id)}
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                          >
+                            View
                           </button>
                         </td>
                       </tr>
@@ -208,7 +240,10 @@ function Dashboard() {
             >
               &times;
             </button>
-            <UploadModal onClose={() => setShowUploadModal(false)} />
+            <UploadModal onClose={() => setShowUploadModal(false)}  onSuccess={() => {
+          setShowUploadModal(false);
+          fetchUsers();  // refresh data
+        }}/>
           </div>
         </div>
       )}

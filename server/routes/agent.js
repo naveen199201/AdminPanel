@@ -31,16 +31,29 @@ router.post('/create', auth, async (req, res) => {
   }
 });
 
-router.get('/usersList',auth,async (req,res) => {
+router.get('/usersList', auth, async (req, res) => {
   try {
-    const agents= await User.find({role:'agent'});
-    console.log(agents);
-    res.json(agents);
-  }catch (error){
-    res.status(500).json({error:'Failed to fetch Agents.'});
+    // Get all agents
+    const agents = await User.find({ role: 'agent' }).lean();
+
+    // For each agent, get count of distributed items
+    const agentsWithCount = await Promise.all(
+      agents.map(async (agent) => {
+        const count = await DistributedItem.countDocuments({ agentId: agent._id });
+        return {
+          ...agent,
+          count, // add count field here
+        };
+      })
+    );
+
+    res.json(agentsWithCount);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch Agents with counts.' });
   }
-}
-)
+});
+
 
 router.get('/list/:userId', auth, async (req, res) => {
   const { userId } = req.params;
@@ -101,5 +114,20 @@ router.delete('/delete/:id', auth, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.get('/itemsList/:id', async (req, res) => {
+  const { id } = req.params;
+  try{
+    const items = await DistributedItem.find({ agentId: id });
+    if (items.length === 0) {
+      return res.status(404).json({ error: 'No items found for this agent.' });
+    }
+    res.json(items); 
+  }
+  catch (error) {
+
+    res.status(500).json({ error: 'Failed to fetch items.' }); 
+  }
+})
 
 export default router;

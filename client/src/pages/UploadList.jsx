@@ -5,7 +5,7 @@ import { saveAs } from "file-saver";
 import api from "../services/api";
 import { toast } from "react-toastify";
 
-const UploadModal = ({ onClose })=> {
+const UploadModal = ({ onClose,onSuccess })=> {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -85,19 +85,21 @@ const UploadModal = ({ onClose })=> {
       formData.append("file", file);
 
       try {
-        setIsUploading(true);
-        await api.post("/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("File uploaded and distributed");
-        setFile(null);
-        onClose(); // close modal after success
-      } catch (err) {
-        alert("Upload failed");
-        console.error(err);
-      } finally {
-        setIsUploading(false);
-      }
+  setIsUploading(true);
+  await api.post("/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  toast.success("File uploaded and distributed");
+  setFile(null);
+
+  if(onSuccess) onSuccess();  // Notify parent about success
+  onClose(); // Close modal
+} catch (err) {
+  alert("Upload failed");
+  console.error(err);
+} finally {
+  setIsUploading(false);
+}
     };
 
     if (file.name.endsWith(".csv")) {
